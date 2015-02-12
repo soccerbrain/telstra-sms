@@ -31,7 +31,7 @@ module Telstra
                   }.to_json,
                   headers: { "Content-Type" => "application/json", "Authorization" => "Bearer #{@token}" }}
       response = HTTParty.post("https://api.telstra.com/v1/sms/messages", options)
-      return response.body
+      return JSON.parse(response.body)
     end
 
     # Get the status of a previously sent SMS message
@@ -46,16 +46,16 @@ module Telstra
     # Obviously, more info can be grabbed from those on the Telstra network.
     def get_message_status(message_id)
       generate_token
-      options = { headers: { "Authorization" => "Bearer #{@token}" } }
-      repsonse = HTTParty.post("https://api.telstra.com/v1/sms/messages/#{message_id}")
-      return response.body
+      options = { body: {}, headers: { "Authorization" => "Bearer #{@token}" } }
+      response = HTTParty.get("https://api.telstra.com/v1/sms/messages/#{message_id}", options)
+      return JSON.parse(response.body)
     end
 
     def get_message_response(message_id)
       generate_token
-      options = { headers: { "Authorization" => "Bearer #{@token}" } }
-      repsonse = HTTParty.post("https://api.telstra.com/v1/sms/messages/#{message_id}/response")
-      return response.body
+      options = { body: {}, headers: { "Authorization" => "Bearer #{@token}" } }
+      response = HTTParty.get("https://api.telstra.com/v1/sms/messages/#{message_id}/response", options)
+      return JSON.parse(response.body)
     end
 
   end

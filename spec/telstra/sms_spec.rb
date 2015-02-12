@@ -19,32 +19,41 @@ describe Telstra::SMS do
         VCR.use_cassette('send_sms') do
           response = telstra_api.send_sms(to: '0425616397', body: 'Hello from Telstra!')
           expect(response).kind_of?(Hash)
+          expect(response.has_key?('messageId')).to eq true
         end
       end
     end
 
     describe "get_message_status" do
-      before(:each) do
-        VCR.use_cassette('get_message_status') do
-          @response = telstra_api.send_sms(to: '0425616397', body: 'Hello from Telstra!')
-        end
-      end
-
       it 'returns message status' do
-        puts @response
-        expect(@response).kind_of?(Hash)
+        VCR.use_cassette('get_message_status') do
+          sms_response = telstra_api.send_sms(to: '0425616397', body: 'Hello from Telstra!')
+          message_id = sms_response['messageId']
+          response = telstra_api.get_message_status(message_id)
+
+          expect(response).kind_of?(Hash)
+          expect(response.has_key?('to')).to eq true
+          expect(response.has_key?('receivedTimestamp')).to eq true
+          expect(response.has_key?('sentTimestamp')).to eq true
+          expect(response.has_key?('status')).to eq true
+        end
       end
     end
 
     describe "#get_message_response" do
-      before(:each) do
-        VCR.use_cassette('get_message_response') do
-          @response = telstra_api.send_sms(to: '0425616397', body: 'Hello from Telstra!')
-        end
-      end
+      ## Can a response be simulated?
       it 'returns message response' do
-        puts @response
-        expect(@response).kind_of?(Hash)
+        VCR.use_cassette('get_message_response') do
+          sms_response = telstra_api.send_sms(to: '0425616397', body: 'Hello from Telstra!')
+          message_id = sms_response['messageId']
+          response = telstra_api.get_message_response(message_id)
+
+          expect(response).kind_of?(Array)
+
+          expect(response[0].has_key?('from')).to eq true
+          expect(response[0].has_key?('acknowledgedTimestamp')).to eq true
+          expect(response[0].has_key?('content')).to eq true
+        end
       end
     end
 
